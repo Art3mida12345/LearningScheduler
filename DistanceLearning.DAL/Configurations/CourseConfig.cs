@@ -28,13 +28,9 @@ namespace DistanceLearning.DAL.Configurations
                 .HasForeignKey(o => o.CourseId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            builder.Property(z => z.Name).IsRequired().HasMaxLength(100);
-            builder.Property(z => z.Description).IsRequired().HasMaxLength(1000);
-            builder.Property(z => z.Theme).IsRequired().HasMaxLength(100);
-            builder.Property(z => z.PersonQuantity).IsRequired();
-            builder.Property(z => z.StartDate).IsRequired();
-            builder.Property(z => z.EndDate).IsRequired();
-            builder.Property(z => z.TotalLessonsQuantity).IsRequired();
+            builder.Property(z => z.Name).IsRequired().HasMaxLength(50);
+            builder.Property(z => z.Description).IsRequired().HasMaxLength(250);
+            builder.Property(z => z.Theme).IsRequired().HasMaxLength(60);
         }
     }
 }

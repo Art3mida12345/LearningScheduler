@@ -8,17 +8,17 @@ namespace DistanceLearning.DAL.Entities
     {
         public long Id { get; set; }
 
-        public int LessonQuantityPerWeek { get; set; }
+        public byte LessonQuantityPerWeek { get; set; }
 
-        public int TotalLessonsQuantity { get; set; }
+        public short TotalLessonsQuantity { get; set; }
 
         public long? TeacherId { get; set; }
 
         public Teacher Teacher { get; set; }
 
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         public string Theme { get; set; }
 
@@ -29,7 +29,7 @@ namespace DistanceLearning.DAL.Entities
         [Column(TypeName = "decimal(5, 2)")]
         public decimal Cost { get; set; }
 
-        public int PersonQuantity { get; set; }
+        public byte AllowedStudentQuantity { get; set; }
 
         public List<Lesson> Lessons { get; set; }
 

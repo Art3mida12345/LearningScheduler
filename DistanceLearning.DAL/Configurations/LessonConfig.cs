@@ -15,6 +15,10 @@ namespace DistanceLearning.DAL.Configurations
                 .WithMany(c => c.Lessons)
                 .HasForeignKey(l => l.CourseId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Property(z => z.Theme).IsRequired().HasMaxLength(100);
+            builder.Property(z => z.LessonLink).IsRequired();
+            builder.Property(z => z.HomeworkLink).IsRequired();
         }
     }
 }

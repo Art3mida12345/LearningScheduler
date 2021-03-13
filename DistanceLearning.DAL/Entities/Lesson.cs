@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DistanceLearning.DAL.Entities
 {
@@ -10,12 +11,14 @@ namespace DistanceLearning.DAL.Entities
 
         public string Theme { get; set; }
 
+        [Column(TypeName = "TEXT")]
         public string HomeworkLink { get; set; }
 
         public Course Course { get; set; }
 
-        public DateTime? StartTime { get; set; }
+        public DateTime StartTime { get; set; }
 
+        [Column(TypeName = "TEXT")]
         public string LessonLink { get; set; }
     }
 }

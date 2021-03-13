@@ -19,8 +19,6 @@ namespace DistanceLearning.DAL.Entities
 
         public string Bio { get; set; }
 
-        public short Rating { get; set; }
-
         public bool IsPmPreferred { get; set; }
 
         public List<Course> Courses { get; set; }
