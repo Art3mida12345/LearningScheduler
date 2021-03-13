@@ -2,9 +2,13 @@
 
 namespace DistanceLearning.DAL.Entities
 {
-    public class AvailabilitySlot
+    public class TeacherScheduleRequest
     {
-        public long UserId { get; set; }
+        public long Id { get; set; }
+
+        public long TeacherId { get; set; }
+
+        public Teacher Teacher { get; set; }
 
         public DateTime StartTime { get; set; }
 

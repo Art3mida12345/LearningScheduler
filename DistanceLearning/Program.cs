@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using DistanceLearning.WEB.Controllers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 

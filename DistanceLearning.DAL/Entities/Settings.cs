@@ -2,9 +2,9 @@
 {
     public class Settings
     {
-        public int SessionDuration { get; set; } = 45;
+        public int SessionDuration = 45;
 
-        public int SessionBreak { get; set; } = 15;
+        public int SessionBreak = 15;
 
         public int WorkingHoursPerWeek = 40;
 

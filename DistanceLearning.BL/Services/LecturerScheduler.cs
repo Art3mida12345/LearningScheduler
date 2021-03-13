@@ -1,43 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DistanceLearning.BL.Interfaces;
 using DistanceLearning.DAL.Entities;
 
 namespace DistanceLearning.BL.Services
 {
-    public class LecturerScheduler
+    public class LecturerScheduler : ILecturerScheduler
     {
-        private readonly Settings _settings = new Settings();
+        public static readonly Settings _settings = new Settings();
 
-        private readonly List<Course> _courses = new List<Course>
+        public static readonly List<Course> _courses = new List<Course>
         {
             new Course
             {
-                CourseId = 1,
-                LessonQuantityPerWeek = 2,
+                Id = 1,
+                LessonQuantityPerWeek = 3,
                 TotalLessonsQuantity = 12,
-                LecturerId = 1,
+                TeacherId = 1,
                 StartDate = DateTime.UtcNow.AddDays(-1),
                 EndDate = DateTime.UtcNow.AddYears(1)
             },
             new Course
             {
-                CourseId = 2,
-                LessonQuantityPerWeek = 2,
+                Id = 2,
+                LessonQuantityPerWeek = 4,
                 TotalLessonsQuantity = 12,
-                LecturerId = 1,
+                TeacherId = 1,
                 StartDate = DateTime.UtcNow.AddDays(-1),
                 EndDate = DateTime.UtcNow.AddYears(1)
             },
         };
 
-        public void ValidateAvailability(List<AvailabilitySlot> availabilitySlots, long lecturerId)
+        public void ValidateAvailabilityForWeek(List<TeacherScheduleRequest> availabilitySlots)
         {
+            if (availabilitySlots.Count == 0)
+            {
+                return;
+            }
+
             // Step 1. Sorting lecturer courses by learning days per week
             var lecturerCourses =
                 _courses
                     // Select lecturer course
-                    .Where(c => c.LecturerId == lecturerId)
+                    .Where(c => c.TeacherId == availabilitySlots[0].TeacherId)
 
                     // Select courses that currently available
                     .Where(c => c.StartDate.Date <= DateTime.UtcNow.Date && c.EndDate.Date >= DateTime.UtcNow.Date)
@@ -65,22 +71,21 @@ namespace DistanceLearning.BL.Services
 
             // Step 3. Validate slots count
 
-            var slots = availabilitySlots.Select(slot =>
-            {
-                var slotsTotalMinutes = (int)(slot.EndTime - slot.StartTime).TotalMinutes;
-                var slotsCount = slotsTotalMinutes / _settings.SessionDuration;
+            var slotsGrouped = availabilitySlots.Select(slot =>
+                {
+                    var slotsTotalMinutes = (int) (slot.EndTime - slot.StartTime).TotalMinutes;
+                    var group = new
+                    {
+                        DayOfWeek = (int)slot.StartTime.DayOfWeek,
+                        Count = (slotsTotalMinutes + _settings.SessionBreak) / (_settings.SessionDuration + _settings.SessionBreak)
+                    };
 
-                return new
-                {
-                    DayOfWeek = (int)slot.StartTime.DayOfWeek,
-                    Count = (slotsTotalMinutes - _settings.SessionBreak * (slotsCount - 1)) / _settings.SessionDuration
-                };
-            })
-                .GroupBy(s => s.DayOfWeek)
-                .Select(slot =>
-                {
-                    return slot.Sum(s => s.Count);
+                    return group;
                 })
+                .GroupBy(s => s.DayOfWeek);
+
+            var slots = slotsGrouped
+                .Select(s => s.Sum(count => count.Count))
                 .ToList();
 
             var courseSlots = lecturerCourses.Sum(course => course.LessonQuantityPerWeek);
@@ -90,21 +95,27 @@ namespace DistanceLearning.BL.Services
                 throw new Exception($"The count of selected available lessons slots should be more than {courseSlots} with duration {_settings.SessionDuration} and break {_settings.SessionBreak}");
             }
 
-            // Step 4. Validate possibility to create schedule
+            // Step 4. Validate possibility to create schedule by days
             foreach (var course in lecturerCourses)
             {
-                for (int i = 0; i < course.LessonQuantityPerWeek; i++)
+                // Sorting descending
+                slots.Sort((a, b) => b.CompareTo(a));
+                var courseBookedDays = 0;
+
+                for (var dayIndex = 0; dayIndex < slots.Count && courseBookedDays < course.LessonQuantityPerWeek; dayIndex++)
                 {
                     if (slots.Count < course.LessonQuantityPerWeek)
                     {
                         throw new Exception("Defined availability slots are invalid, add more time or work day");
                     }
 
-                    slots[i]--;
+                    slots[dayIndex]--;
+                    courseBookedDays++;
 
-                    if (slots[i] == 0)
+                    if (slots[dayIndex] == 0)
                     {
-                        slots.RemoveAt(i);
+                        slots.RemoveAt(dayIndex);
+                        dayIndex--;
                     }
                 }
             }
